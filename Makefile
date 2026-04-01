@@ -34,15 +34,19 @@ init:
 
 ## preview infrastructure changes (decrypts tfvars automatically)
 plan:
-	@sops -d $(INFRA_DIR)/terraform.tfvars.enc > $(INFRA_DIR)/terraform.tfvars.plaintext
-	cd $(INFRA_DIR) && terraform plan -var-file=terraform.tfvars.plaintext; \
-		EXIT=$$?; rm -f terraform.tfvars.plaintext; exit $$EXIT
+	@cd $(INFRA_DIR) && \
+		TMP_TFVARS=$$(mktemp terraform.tfvars.plaintext.XXXXXXXX) && \
+		trap 'rm -f "$$TMP_TFVARS"' EXIT INT TERM && \
+		sops -d terraform.tfvars.enc > "$$TMP_TFVARS" && \
+		terraform plan -var-file="$$TMP_TFVARS"
 
 ## apply infrastructure changes (decrypts tfvars automatically)
 apply:
-	@sops -d $(INFRA_DIR)/terraform.tfvars.enc > $(INFRA_DIR)/terraform.tfvars.plaintext
-	cd $(INFRA_DIR) && terraform apply -var-file=terraform.tfvars.plaintext; \
-		EXIT=$$?; rm -f terraform.tfvars.plaintext; exit $$EXIT
+	@cd $(INFRA_DIR) && \
+		TMP_TFVARS=$$(mktemp terraform.tfvars.plaintext.XXXXXXXX) && \
+		trap 'rm -f "$$TMP_TFVARS"' EXIT INT TERM && \
+		sops -d terraform.tfvars.enc > "$$TMP_TFVARS" && \
+		terraform apply -var-file="$$TMP_TFVARS"
 
 ## tear down all infrastructure (asks for confirmation)
 destroy:

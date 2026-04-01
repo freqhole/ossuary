@@ -34,7 +34,7 @@ docs/            architecture plans and notes
 all secrets are encrypted in-repo using [SOPS](https://github.com/getsops/sops) + [age](https://github.com/FiloSottile/age). no plaintext secrets in the repo, ever.
 
 - `compose/.env` — docker compose secrets (encrypted, safe to commit)
-- `infra/terraform.tfvars` — terraform variables (encrypted, safe to commit)
+- `infra/terraform.tfvars.enc` — terraform variables (encrypted, safe to commit)
 - `.sops.yaml` — config that tells SOPS which age key to use for which files
 
 both your local machine and GitHub Actions decrypt with the same age private key. CI only needs 3 GitHub secrets (down from 6+).

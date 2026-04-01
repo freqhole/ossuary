@@ -1,0 +1,123 @@
+services:
+  # --- reverse proxy ---
+  caddy:
+    image: caddy:2-alpine
+    container_name: caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp" # HTTP/3
+      - "8448:8448" # Matrix federation
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./static:/srv/static:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - synapse
+      - rauthy
+    networks:
+      - frontend
+
+  # --- identity provider ---
+  rauthy:
+    image: ghcr.io/sebadob/rauthy:0.35.0
+    container_name: rauthy
+    restart: unless-stopped
+    volumes:
+      - ./rauthy/rauthy.cfg:/app/config.toml:ro
+      - ./rauthy/bootstrap:/app/bootstrap:ro
+      - rauthy_data:/app/data
+    environment:
+      # override secrets via env (don't put them in rauthy.cfg)
+      - ENC_KEYS=${RAUTHY_ENC_KEYS}
+      - ENC_KEY_ACTIVE=${RAUTHY_ENC_KEY_ACTIVE}
+      - HQL_SECRET_RAFT=${RAUTHY_HQL_SECRET_RAFT}
+      - HQL_SECRET_API=${RAUTHY_HQL_SECRET_API}
+      - SMTP_URL=${SMTP_URL}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_USERNAME=${SMTP_USERNAME}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - SMTP_FROM=${SMTP_FROM}
+      - BOOTSTRAP_ADMIN_EMAIL=${ADMIN_EMAIL}
+      - BOOTSTRAP_ADMIN_PASSWORD_PLAIN=${RAUTHY_BOOTSTRAP_PASSWORD}
+      # user picture storage (S3)
+      - PIC_S3_URL=${S3_ENDPOINT}
+      - PIC_S3_BUCKET=${S3_PICTURES_BUCKET}
+      - PIC_S3_REGION=${S3_REGION}
+      - PIC_S3_KEY=${S3_ACCESS_KEY}
+      - PIC_S3_SECRET=${S3_SECRET_KEY}
+      # Hiqlite backups (S3)
+      - HQL_S3_URL=${S3_ENDPOINT}
+      - HQL_S3_BUCKET=${S3_BACKUP_BUCKET}
+      - HQL_S3_REGION=${S3_REGION}
+      - HQL_S3_KEY=${S3_ACCESS_KEY}
+      - HQL_S3_SECRET=${S3_SECRET_KEY}
+      - HQL_S3_PATH_STYLE=true
+    networks:
+      - frontend
+
+  # --- matrix homeserver ---
+  synapse:
+    build:
+      context: ./synapse
+      dockerfile: Dockerfile
+    container_name: synapse
+    restart: unless-stopped
+    volumes:
+      - ./synapse/homeserver.yaml:/data/homeserver.yaml.template:ro
+      - synapse_data:/data
+    environment:
+      - SYNAPSE_CONFIG_PATH=/data/homeserver.yaml
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - SYNAPSE_OIDC_CLIENT_SECRET=${SYNAPSE_OIDC_CLIENT_SECRET}
+      - S3_ACCESS_KEY=${S3_ACCESS_KEY}
+      - S3_SECRET_KEY=${S3_SECRET_KEY}
+      - S3_ENDPOINT=${S3_ENDPOINT}
+      - S3_REGION=${S3_REGION}
+      - S3_MEDIA_BUCKET=${S3_MEDIA_BUCKET}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      # run as root to avoid permission issues with docker volumes
+      - UID=0
+      - GID=0
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - frontend
+      - backend
+
+  # --- database ---
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: synapse
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: synapse
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U synapse"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend
+
+networks:
+  frontend:
+    driver: bridge
+  backend:
+    driver: bridge
+    internal: true # postgres not reachable from outside
+
+volumes:
+  caddy_data:
+  caddy_config:
+  rauthy_data:
+  synapse_data:
+  pgdata:

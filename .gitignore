@@ -13,7 +13,9 @@ crash.*.log
 # password, private keys, and other secrets. These should not be part of version 
 # control as they are data points which are potentially sensitive and subject 
 # to change depending on the environment.
-*.tfvars
+# NOTE: with SOPS, terraform.tfvars is encrypted and safe to commit.
+# only exclude unencrypted copies.
+*.tfvars.plaintext
 *.tfvars.json
 
 # Ignore override files as they are usually used to override resources locally and so
@@ -30,8 +32,29 @@ override.tf.json
 # !example_override.tf
 
 # Include tfplan files to ignore the plan output of command: terraform plan -out=tfplan
-# example: *tfplan*
+*tfplan*
 
 # Ignore CLI configuration files
+
+# Docker compose secrets
+# NOTE: with SOPS, compose/.env is encrypted and safe to commit.
+# only exclude unencrypted copies.
+compose/.env.plaintext
+.env.plaintext
+
+# Generated configs with secrets (from templates via envsubst)
+compose/rauthy/bootstrap/clients.json
+
+# root .env — S3 backend creds for terraform (plaintext, local only)
+.env
+
+# age private keys — NEVER commit
+*.age
+keys.txt
+
+# OS junk
+.DS_Store
 .terraformrc
 terraform.rc
+
+ovh.conf

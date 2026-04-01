@@ -1,0 +1,50 @@
+# carp.rodeo Caddyfile
+#
+# caddy handles TLS automatically via ACME (Let's Encrypt).
+# no certbot, no renewal cron, no nginx config.
+
+# rauthy — OIDC identity provider
+auth.carp.rodeo {
+	reverse_proxy rauthy:8080
+}
+
+# synapse — Matrix homeserver client API
+synapse.carp.rodeo {
+	reverse_proxy synapse:8008
+}
+
+# Matrix federation endpoint (port 8448)
+# other homeservers connect here for federation
+synapse.carp.rodeo:8448 {
+	reverse_proxy synapse:8008
+}
+
+# base domain — serves .well-known for Matrix delegation
+# this tells other servers that carp.rodeo's Matrix is at synapse.carp.rodeo
+carp.rodeo {
+	# Matrix client well-known
+	handle /.well-known/matrix/client {
+		header Content-Type "application/json"
+		header Access-Control-Allow-Origin "*"
+		respond `{"m.homeserver":{"base_url":"https://synapse.carp.rodeo"}}`
+	}
+
+	# Matrix server well-known (federation)
+	handle /.well-known/matrix/server {
+		header Content-Type "application/json"
+		respond `{"m.server":"synapse.carp.rodeo:443"}`
+	}
+
+	# everything else — serve static site
+	handle {
+		root * /srv/static
+		file_server
+		try_files {path} /index.html
+	}
+}
+
+# element web — uncomment when ready
+# chat.carp.rodeo {
+# 	root * /srv/element
+# 	file_server
+# }

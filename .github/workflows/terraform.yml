@@ -35,7 +35,7 @@ jobs:
           sudo mv sops-v3.9.4.linux.amd64 /usr/local/bin/sops
 
       - name: decrypt terraform variables
-        run: sops -d infra/terraform.tfvars > infra/terraform.tfvars.plaintext
+        run: sops -d infra/terraform.tfvars.enc > infra/terraform.tfvars.plaintext
 
       - name: terraform init
         working-directory: infra
@@ -85,7 +85,7 @@ jobs:
           sudo mv sops-v3.9.4.linux.amd64 /usr/local/bin/sops
 
       - name: decrypt terraform variables
-        run: sops -d infra/terraform.tfvars > infra/terraform.tfvars.plaintext
+        run: sops -d infra/terraform.tfvars.enc > infra/terraform.tfvars.plaintext
 
       - name: terraform init
         working-directory: infra

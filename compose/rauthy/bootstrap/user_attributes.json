@@ -1,0 +1,12 @@
+[
+    {
+        "name": "node_ids",
+        "desc": "iroh n0 node identifiers - comma separated",
+        "user_editable": true
+    },
+    {
+        "name": "bio",
+        "desc": "short user bio",
+        "user_editable": true
+    }
+]

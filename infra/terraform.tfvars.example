@@ -1,0 +1,23 @@
+# copy to terraform.tfvars and fill in values
+# NEVER commit terraform.tfvars — it's in .gitignore
+
+# OVH Cloud credentials (get from https://api.us.ovhcloud.com/createToken/)
+ovh_application_key    = ""
+ovh_application_secret = ""
+ovh_consumer_key       = ""
+
+# OVH project + region
+ovh_project_id = "1234567890acbcef01234567890abcde"
+ovh_region     = "US-EAST-LZ-NYC-A"
+
+# instance config
+instance_flavor = "b3-8"
+instance_image  = "Debian 12"
+ssh_key_name    = ""  # name of your SSH key in OVH Cloud
+
+# Cloudflare
+cloudflare_api_token = ""  # API token with Zone:DNS:Edit for carp.rodeo
+cloudflare_zone_id   = ""  # zone ID from Cloudflare dashboard
+
+# domain
+domain = "carp.rodeo"

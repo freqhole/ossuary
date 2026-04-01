@@ -1,0 +1,22 @@
+# SOPS config — encrypts secrets in-repo with age
+#
+# setup:
+#   brew install sops age
+#   age-keygen -o ~/.config/sops/age/keys.txt
+#   paste the public key below
+#
+# usage:
+#   sops compose/.env              # edit encrypted file
+#   sops -d compose/.env           # decrypt to stdout
+#   sops -e -i compose/.env        # encrypt in-place
+#
+# CI: set SOPS_AGE_KEY GitHub secret to the contents of keys.txt
+
+creation_rules:
+  # compose secrets
+  - path_regex: compose/\.env$
+    age: "age1f899q03245skmn9h2u8pxvykga97f8edr2hese56lndyee0wfpasejqqg5"
+
+  # terraform variables
+  - path_regex: infra/terraform\.tfvars\.enc$
+    age: "age1f899q03245skmn9h2u8pxvykga97f8edr2hese56lndyee0wfpasejqqg5"

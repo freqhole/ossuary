@@ -1,0 +1,9 @@
+[
+    {
+        "name": "carp_profile",
+        "attr_include_id": [
+            "node_ids",
+            "bio"
+        ]
+    }
+]

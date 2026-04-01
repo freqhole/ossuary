@@ -24,11 +24,10 @@ docs/            architecture plans and notes
 - Cloudflare API token (DNS edit permission for `carp.rodeo` zone)
 - SSH key registered in OVH Cloud dashboard
 - [Resend](https://resend.com) account + API key for transactional email
-- OVH S3 buckets created in the Cloud dashboard:
+- OVH S3 bucket created in the Cloud dashboard:
   - `ossuary-tfstate` (terraform state)
-  - `carp-rodeo-synapse-media` (Synapse media)
-  - `carp-rodeo-rauthy-backups` (Rauthy Hiqlite backups)
 
+  the application buckets (`carp-rodeo-synapse-media` for Synapse media and `carp-rodeo-rauthy-backups` for Rauthy Hiqlite backups) are created by terraform in `infra/main.tf`.
 ## secrets management
 
 all secrets are encrypted in-repo using [SOPS](https://github.com/getsops/sops) + [age](https://github.com/FiloSottile/age). no plaintext secrets in the repo, ever.

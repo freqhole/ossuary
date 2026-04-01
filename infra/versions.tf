@@ -20,11 +20,11 @@ terraform {
     key                         = "carp-rodeo/terraform.tfstate"
     region                      = "us-east-va"
     encrypt                     = true
-    endpoint                    = "https://s3.us-east-va.perf.cloud.ovh.us"
+    endpoints                   = { s3 = "https://s3.us-east-va.perf.cloud.ovh.us" }
     skip_credentials_validation = true
     skip_metadata_api_check     = true
     skip_region_validation      = true
     skip_requesting_account_id  = true
-    force_path_style            = true
+    use_path_style              = true
   }
 }

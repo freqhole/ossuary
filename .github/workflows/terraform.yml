@@ -47,6 +47,9 @@ jobs:
       - name: terraform plan
         working-directory: infra
         run: terraform plan -no-color -var-file=terraform.tfvars.plaintext -out=tfplan
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.S3_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.S3_SECRET_KEY }}
 
       - name: cleanup plaintext
         if: always()
@@ -97,6 +100,9 @@ jobs:
       - name: terraform apply
         working-directory: infra
         run: terraform apply -auto-approve -var-file=terraform.tfvars.plaintext
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.S3_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.S3_SECRET_KEY }}
 
       - name: cleanup plaintext
         if: always()

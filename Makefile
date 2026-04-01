@@ -108,7 +108,7 @@ gen-env:
 		echo "ADMIN_EMAIL=admin@carp.rodeo"; \
 		echo ""; \
 		echo "SMTP_URL=smtp.resend.com"; \
-		echo "SMTP_PORT=465"; \
+		echo "SMTP_PORT=2465"; \
 		echo "SMTP_USERNAME=resend"; \
 		echo "SMTP_PASSWORD=re_xxxxx"; \
 		echo "SMTP_FROM=carp.rodeo <auth@carp.rodeo>"; \

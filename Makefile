@@ -180,6 +180,10 @@ generate-configs:
 		echo "error: $(COMPOSE_DIR)/.env not found. run 'make gen-env' first."; \
 		exit 1; \
 	fi
+	@if ! command -v envsubst >/dev/null 2>&1; then \
+		echo "error: envsubst not found. Please install 'gettext' (provides envsubst)."; \
+		exit 1; \
+	fi
 	@echo "generating templated configs..."
 	@SYNAPSE_OIDC_CLIENT_SECRET=$$(sops -d $(COMPOSE_DIR)/.env | grep '^SYNAPSE_OIDC_CLIENT_SECRET=' | cut -d= -f2) \
 		envsubst '$$SYNAPSE_OIDC_CLIENT_SECRET' < $(COMPOSE_DIR)/rauthy/bootstrap/clients.json.template > $(COMPOSE_DIR)/rauthy/bootstrap/clients.json

@@ -1,5 +1,5 @@
-# copy to terraform.tfvars and fill in values
-# NEVER commit terraform.tfvars — it's in .gitignore
+# copy to terraform.tfvars.enc (SOPS-managed) and fill in values
+# NEVER commit plaintext terraform.tfvars or other unencrypted secrets to git
 
 # OVH Cloud credentials (get from https://api.us.ovhcloud.com/createToken/)
 ovh_application_key    = ""
